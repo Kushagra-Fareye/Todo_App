@@ -89,7 +89,7 @@ const Form = () => {
             <TouchableOpacity onPress={() => toggleShowPassword(!showPassword)}>
               <Image
                 source={
-                  !showPassword
+                  showPassword
                     ? require('../assets/hide.png')
                     : require('../assets/view.png')
                 }

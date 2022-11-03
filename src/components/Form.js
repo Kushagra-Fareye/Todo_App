@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  ImageComponent,
   Image,
 } from 'react-native';
 import React, {useState} from 'react';
@@ -14,7 +13,6 @@ import {
   FormPageTypeText,
   PageTypes,
 } from '../constants/FormConstants';
-import {hide, view} from '../assets/index';
 
 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
 
@@ -87,28 +85,29 @@ const Form = () => {
             value={password}
             onChangeText={text => setPassword(text)}
           />
-          {showPassword && (
-            <Image
-              source={
-                showPassword
-                  ? require('../assets/hide.png')
-                  : require('../assets/view.png')
-              }
-              style={styles.icon}
-              onPress={() => toggleShowPassword(!showPassword)}
-            />
-          )}
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={handleSubmitButtonClick}>
-            <Text style={{fontSize: 19, fontWeight: 'bold', color: 'white'}}>
-              {' '}
-              {pageType !== PageTypes.log_in
-                ? PageTypes.sign_up
-                : PageTypes.log_in}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.passwordInput}>
+            <TouchableOpacity onPress={() => toggleShowPassword(!showPassword)}>
+              <Image
+                source={
+                  !showPassword
+                    ? require('../assets/hide.png')
+                    : require('../assets/view.png')
+                }
+                style={styles.icon}
+              />
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmitButtonClick}>
+              <Text style={{fontSize: 19, fontWeight: 'bold', color: 'white'}}>
+                {' '}
+                {pageType !== PageTypes.log_in
+                  ? PageTypes.sign_up
+                  : PageTypes.log_in}
+              </Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.formFooter}>
             {FormPageTypeText[pageType]}
             <Text
@@ -176,6 +175,7 @@ const styles = StyleSheet.create({
   icon: {
     height: 30,
     width: 30,
+    alignSelf: 'center',
   },
 });
 

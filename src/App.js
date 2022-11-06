@@ -6,17 +6,57 @@
  * @flow strict-local
  */
 
-import React from 'react';
-import {SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
-
-import {Form, Header} from './components';
+import {NavigationContainer} from '@react-navigation/native';
+import React, {useState} from 'react';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {AddTodoForm, Form, Header, List} from './components';
+import TodoPage from './Pages/TodoPage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
+  const Stack = createStackNavigator();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  AsyncStorage.setItem(
+    'completedTodos',
+    JSON.stringify([
+      {title: 'something', dueDate: 'dueDate', type: 'professional'},
+      {title: 'something', dueDate: 'dueDate', type: 'professional'},
+      {title: 'something', dueDate: 'dueDate', type: 'professional'},
+      {title: 'something', dueDate: 'dueDate', type: 'personal'},
+      {title: 'something', dueDate: 'dueDate', type: 'personal'},
+    ]),
+  );
+  AsyncStorage.setItem('todos', JSON.stringify([]));
+  AsyncStorage.setItem('inProgressodos', JSON.stringify([]));
+
   return (
-    <SafeAreaView style={[styles.container]}>
-      <Header style={styles.header} />
-      <Form style={styles.form} />
-    </SafeAreaView>
+    <>
+      <SafeAreaView style={[styles.container]}>
+        <NavigationContainer>
+          <Header style={styles.header} />
+          {isLoggedIn ? (
+            <View style={styles.body}>
+              <Stack.Navigator
+                screenOptions={{
+                  headerShown: false,
+                }}>
+                <Stack.Screen name="Todos" component={List} />
+                <Stack.Screen name="Completed Todos" component={List} />
+                <Stack.Screen name="In Progress Todos" component={List} />
+                <Stack.Screen name="Add Todo Form" component={AddTodoForm} />
+              </Stack.Navigator>
+            </View>
+          ) : (
+            <Form
+              style={styles.body}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+            />
+          )}
+        </NavigationContainer>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -28,7 +68,7 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
   },
-  form: {
+  body: {
     flex: 5,
   },
 });

@@ -11,6 +11,7 @@ import React, {useState} from 'react';
 import {AlertMessages} from '../constants/FormConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TodoType} from '../constants/TodoConstants';
+import {writeData} from '../database/realm';
 
 const AddTodoForm = props => {
   const [dueDate, setDueDate] = useState('');
@@ -44,6 +45,13 @@ const AddTodoForm = props => {
     setDueDate('');
     setTitle('');
     toggleTodoType(true);
+    const todo = {
+      id: 1,
+      title,
+      dueDate,
+      status: 'todo',
+    };
+    writeData(todo);
     props.navigation.pop();
   };
 

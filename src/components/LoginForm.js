@@ -26,7 +26,7 @@ const LoginForm = props => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [pageType, setPageType] = useState(PageTypes.log_in);
-  const [showPassword, toggleShowPassword] = useState(true);
+  const [showPassword, toggleShowPassword] = useState(false);
   const [validEmailColor, updateValidEmailColor] = useState('black');
   const [validPasswordColor, updateValidPasswordColor] = useState('black');
 
@@ -52,14 +52,14 @@ const LoginForm = props => {
       Alert.alert(AlertMessages.empty);
       return;
     }
-    if (!reg.test(email)) {
-      Alert.alert('Invalid Email', AlertMessages.invalidEmail);
-      return;
-    }
-    if (!passwordReg.test(email)) {
-      Alert.alert('Invalid Password', AlertMessages.invalidPassword);
-      return;
-    }
+    // if (!reg.test(email)) {
+    //   Alert.alert('Invalid Email', AlertMessages.invalidEmail);
+    //   return;
+    // }
+    // if (!passwordReg.test(email)) {
+    //   Alert.alert('Invalid Password', AlertMessages.invalidPassword);
+    //   return;
+    // }
 
     if (pageType === PageTypes.sign_up) {
       setIsLoggedIn(true);
@@ -106,15 +106,16 @@ const LoginForm = props => {
             value={email}
             keyboardType="email-address"
           />
-          <TextInput
-            style={styles.inputField}
-            secureTextEntry={!showPassword}
-            borderBottomColor={validPasswordColor}
-            placeholder="Password"
-            value={password}
-            onChangeText={text => setPassword(text)}
-          />
+
           <View style={styles.passwordInput}>
+            <TextInput
+              style={styles.password}
+              secureTextEntry={!showPassword}
+              borderBottomColor={validPasswordColor}
+              placeholder="Password"
+              value={password}
+              onChangeText={text => setPassword(text)}
+            />
             <TouchableOpacity onPress={() => toggleShowPassword(!showPassword)}>
               <Image
                 source={
@@ -125,18 +126,18 @@ const LoginForm = props => {
                 style={styles.icon}
               />
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmitButtonClick}>
-              <Text style={{fontSize: 19, fontWeight: 'bold', color: 'white'}}>
-                {' '}
-                {pageType !== PageTypes.log_in
-                  ? PageTypes.sign_up
-                  : PageTypes.log_in}
-              </Text>
-            </TouchableOpacity>
           </View>
+
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={handleSubmitButtonClick}>
+            <Text style={{fontSize: 19, fontWeight: 'bold', color: 'white'}}>
+              {' '}
+              {pageType !== PageTypes.log_in
+                ? PageTypes.sign_up
+                : PageTypes.log_in}
+            </Text>
+          </TouchableOpacity>
           <Text style={styles.formFooter}>
             {FormPageTypeText[pageType]}
             <Text
@@ -204,7 +205,19 @@ const styles = StyleSheet.create({
   icon: {
     height: 30,
     width: 30,
-    alignSelf: 'center',
+    marginTop: 17,
+  },
+  passwordInput: {
+    flexDirection: 'row',
+  },
+  password: {
+    borderColor: 'white',
+    borderBottomColor: 'black',
+    borderWidth: 2,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    padding: 10,
+    width: '80%',
   },
 });
 

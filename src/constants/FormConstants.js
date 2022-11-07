@@ -11,4 +11,8 @@ export const AlertMessages = {
   failed: 'Wrong email or password.',
   empty: 'Empty username or password',
   invalidEmail: 'Enter valid email address.',
+  invalidPassword:
+    'Password must contain 1 capital, 1 small ,1 number and 1 special character.',
+  emptyTitle: 'Title can not be empty.',
+  wrongDate: 'Date should be greater than today and in DD/MM/YYYY Format.',
 };

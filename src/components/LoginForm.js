@@ -6,59 +6,84 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  Keyboard,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   AlertMessages,
   FormPageTypeText,
   PageTypes,
 } from '../constants/FormConstants';
+import {login} from '../api/Login';
 
 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+let passwordReg = /^(?=.[0-9])(?=.[!@#$%^&])[a-zA-Z0-9!@#$%^&]{6,16}$/;
 
-const Form = () => {
+const LoginForm = props => {
+  const {setIsLoggedIn} = props;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [pageType, setPageType] = useState(PageTypes.sign_up);
-  const [loginState, setLoginState] = useState(false);
+  const [pageType, setPageType] = useState(PageTypes.log_in);
   const [showPassword, toggleShowPassword] = useState(true);
-  const [validUsers, setValidUsers] = useState({
-    'test@gmail.com': {password: '123', name: 'test1'},
-    'test1@gmail.com': {password: '12345', name: 'test2'},
-  });
-  const handleSubmitButtonClick = () => {
+  const [validEmailColor, updateValidEmailColor] = useState('black');
+  const [validPasswordColor, updateValidPasswordColor] = useState('black');
+
+  useEffect(() => {
+    if (!reg.test(email)) {
+      updateValidEmailColor('red');
+    } else {
+      updateValidEmailColor('green');
+    }
+  }, [email]);
+
+  useEffect(() => {
+    if (!passwordReg.test(password)) {
+      updateValidPasswordColor('red');
+    } else {
+      updateValidPasswordColor('green');
+    }
+  }, [password]);
+
+  const handleSubmitButtonClick = async () => {
+    Keyboard.dismiss();
     if (email === '' || password === '') {
       Alert.alert(AlertMessages.empty);
       return;
     }
     if (!reg.test(email)) {
-      Alert.alert(AlertMessages.invalidEmail);
+      Alert.alert('Invalid Email', AlertMessages.invalidEmail);
+      return;
+    }
+    if (!passwordReg.test(email)) {
+      Alert.alert('Invalid Password', AlertMessages.invalidPassword);
       return;
     }
 
     if (pageType === PageTypes.sign_up) {
-      validUsers[email] = {email, password};
-      setValidUsers(() => validUsers);
-      setLoginState(true);
+      setIsLoggedIn(true);
       changePageType();
     } else {
-      if (validUsers[email]?.password === password) {
-        setLoginState(true);
-      } else {
-        setLoginState(false);
-      }
+      try {
+        const isSuccessful = await login({email, password});
+        Alert.alert(
+          isSuccessful ? AlertMessages.success : AlertMessages.failed,
+        );
+        setIsLoggedIn(isSuccessful);
+      } catch (e) {}
     }
+
     setEmail('');
     setPassword('');
     setName('');
-    Alert.alert(loginState ? AlertMessages.success : AlertMessages.failed);
   };
   const changePageType = () => {
     setPageType(prevPageType =>
       prevPageType === PageTypes.log_in ? PageTypes.sign_up : PageTypes.log_in,
     );
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
@@ -68,6 +93,7 @@ const Form = () => {
             <TextInput
               style={styles.inputField}
               placeholder="Enter your name"
+              borderBottomColor="black"
               value={name}
               onChangeText={text => setName(text)}
             />
@@ -75,12 +101,15 @@ const Form = () => {
           <TextInput
             style={styles.inputField}
             placeholder="Your Email Id"
+            borderBottomColor={validEmailColor}
             onChangeText={text => setEmail(text)}
             value={email}
+            keyboardType="email-address"
           />
           <TextInput
             style={styles.inputField}
             secureTextEntry={!showPassword}
+            borderBottomColor={validPasswordColor}
             placeholder="Password"
             value={password}
             onChangeText={text => setPassword(text)}
@@ -179,4 +208,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Form;
+export default LoginForm;

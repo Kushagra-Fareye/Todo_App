@@ -4,6 +4,7 @@ import TodoCard from './TodoCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import Header from './Header';
+import {getAllData, getTodosByStatus} from '../database/realm';
 
 let pageType = 'todos';
 export default function List({route, navigation}) {
@@ -13,9 +14,8 @@ export default function List({route, navigation}) {
   }
   const [data, setData] = useState([]);
   const fetchData = async () => {
-    const storedData = await AsyncStorage.getItem(pageType);
-    const res = JSON.parse(storedData);
-    if (res) setData(res);
+    const storedData = await getTodosByStatus(pageType);
+    if (storedData) setData(storedData);
   };
   useEffect(() => {
     fetchData();
@@ -56,8 +56,8 @@ export default function List({route, navigation}) {
 
           {data && data.length ? (
             <ScrollView style={styles.cardContainer}>
-              {data.map((todo, i) => {
-                return <TodoCard todo={todo} key={i} />;
+              {data.map(todo => {
+                return <TodoCard todo={todo} key={todo.id} />;
               })}
             </ScrollView>
           ) : (

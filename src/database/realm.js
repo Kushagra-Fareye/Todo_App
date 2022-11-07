@@ -1,28 +1,57 @@
 import Realm from 'realm';
-import {TodoSchema} from './schema';
+import {TodoSchema, TodoSchema1} from './schema';
 
-const realm = await Realm.open({
-  path: 'RealmDB',
-  schema: [TodoSchema],
-});
-
-const writeData = async data => {
-  realm.create('Todo', {
-    data,
-  });
-  console.log('something');
-  const data1 = realm.objects('Todo');
-  console.log('hereis data', data1);
+const idGenerator = realm => {
+  let id = realm.objects('Todo').max('id');
+  console.log(id);
+  if (!id) id = 0;
+  return id + 1;
 };
+export async function writeData(data) {
+  const realm = await Realm.open({
+    path: 'RealmDB',
+    schema: [TodoSchema],
+  });
+  try {
+    data.id = idGenerator(realm);
+    realm.write(() => {
+      todo = realm.create('Todo', data);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
 
-const getAllData = () => {
+export async function getAllData() {
+  const realm = await Realm.open({
+    path: 'RealmDB',
+    schema: [TodoSchema],
+  });
   const data = realm.objects('Todo');
   return data;
-};
+}
 
-const getTodosByStatus = filter => {
-  const data = realm.objects('Todo').filtered(`status=${filter}`);
+export async function getTodosByStatus(filter) {
+  const realm = await Realm.open({
+    path: 'RealmDB',
+    schema: [TodoSchema],
+  });
+  const data = realm.objects('Todo').filtered(`status=='${filter}'`);
   return data;
-};
+}
 
-export {writeData, getAllData, getTodosByStatus};
+export async function getRealmPath() {
+  const realm = await Realm.open({
+    path: 'RealmDB',
+    schema: [TodoSchema],
+  });
+  return realm.path;
+}
+
+export async function updateTodo(id) {
+  const realm = await Realm.open({
+    path: 'RealmDB',
+    schema: [TodoSchema],
+  });
+  const todo = realm.objects('Todo').filtered(`id==${id}`);
+}

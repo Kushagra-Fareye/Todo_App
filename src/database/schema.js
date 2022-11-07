@@ -4,7 +4,7 @@ export const TodoSchema = {
     id: 'int',
     title: 'string',
     status: 'string',
-    dueDate: 'Date',
+    dueDate: 'string',
   },
   primaryKey: 'id',
 };

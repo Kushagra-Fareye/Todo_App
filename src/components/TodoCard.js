@@ -16,6 +16,15 @@ export default function TodoCard(props) {
       />
       <Text style={styles.todoTitle}>{todo.title}</Text>
       <Text style={styles.todoDate}>{todo.dueDate}</Text>
+      {todo.status === 'todos' && (
+        <Text
+          style={styles.todoTitle}
+          onPress={async () => {
+            console.log('update status');
+          }}>
+          COMPLETED
+        </Text>
+      )}
     </View>
   );
 }
@@ -46,4 +55,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   todoTitle: {flex: 5, fontSize: 20, alignSelf: 'center'},
+  completedButton: {},
 });

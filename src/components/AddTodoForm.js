@@ -46,12 +46,11 @@ const AddTodoForm = props => {
     setTitle('');
     toggleTodoType(true);
     const todo = {
-      id: 1,
       title,
       dueDate,
-      status: 'todo',
+      status: 'todos',
     };
-    writeData(todo);
+    await writeData(todo);
     props.navigation.pop();
   };
 

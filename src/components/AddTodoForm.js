@@ -6,60 +6,63 @@ import {
   Alert,
   Modal,
   Switch,
+  Button,
 } from 'react-native';
 import React, {useState} from 'react';
 import {AlertMessages} from '../constants/FormConstants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TodoType} from '../constants/TodoConstants';
 import {writeData} from '../database/realm';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddTodoForm = props => {
-  const [dueDate, setDueDate] = useState('');
   const [title, setTitle] = useState('');
   const [isTodoTypePersonal, toggleTodoType] = useState(true);
-
-  const isDatevalid = date => {
-    let dateValidator =
-      /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
-    return !dateValidator.test(date);
-  };
+  const [datePicker, setDatePicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [timePicker, setTimePicker] = useState(false);
+  const [time, setTime] = useState(new Date(Date.now()));
 
   const handleAddTodo = async () => {
     if (title === '') {
       Alert.alert('Invalid', AlertMessages.emptyTitle);
       return;
     }
-    if (isDatevalid(dueDate)) {
-      Alert.alert('Invalid', AlertMessages.wrongDate);
-      setDueDate('');
-      return;
-    }
-    const data = await AsyncStorage.getItem('todos');
-    const todos = JSON.parse(data);
-    todos.push({
-      title: title,
-      type: isTodoTypePersonal ? TodoType.PERSONAL : TodoType.PROFESSIONAL,
-      dueDate,
-    });
-    await AsyncStorage.setItem('todos', JSON.stringify(todos));
-    setDueDate('');
-    setTitle('');
-    toggleTodoType(true);
     const todo = {
       title,
-      dueDate,
+      dueDate: date.toLocaleDateString(),
+      dueTime: time.toLocaleTimeString(),
+      type: isTodoTypePersonal ? TodoType.PERSONAL : TodoType.PROFESSIONAL,
       status: 'todos',
     };
     await writeData(todo);
-    props.navigation.pop();
-  };
-
-  const handleCancelCLick = async () => {
-    setDueDate('');
     setTitle('');
     toggleTodoType(true);
     props.navigation.pop();
   };
+
+  function showDatePicker() {
+    setDatePicker(true);
+  }
+
+  function showTimePicker() {
+    setTimePicker(true);
+  }
+  const getTimeFromDate1 = timestamp => new Date(timestamp * 1000).getTime();
+  function onDateSelected(event, value) {
+    setDate(value);
+    setDatePicker(false);
+  }
+
+  function onTimeSelected(event, value) {
+    setTime(value);
+    setTimePicker(false);
+  }
+  const handleCancelCLick = async () => {
+    setTitle('');
+    toggleTodoType(true);
+    props.navigation.pop();
+  };
+
   return (
     <View style={styles.container}>
       <Modal>
@@ -72,13 +75,55 @@ const AddTodoForm = props => {
               onChangeText={text => setTitle(text)}
               value={title}
             />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Enter Due date"
-              value={dueDate}
-              onChangeText={text => setDueDate(text)}
-            />
 
+            <View style={styles.pickerContainer}>
+              <Text style={styles.dateTimeShow}>
+                Date : {date.toDateString().substring(4)}
+              </Text>
+              {!datePicker && (
+                <View style={styles.dateTimePicker}>
+                  <Button
+                    title="Select Date"
+                    color="green"
+                    onPress={showDatePicker}
+                  />
+                </View>
+              )}
+            </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.dateTimeShow}>
+                Time : {time.toLocaleTimeString()}
+              </Text>
+              {!timePicker && (
+                <View style={styles.dateTimePicker}>
+                  <Button
+                    title="Select Time"
+                    color="green"
+                    onPress={showTimePicker}
+                  />
+                </View>
+              )}
+            </View>
+            {datePicker && (
+              <DateTimePicker
+                value={date}
+                mode={'date'}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                is24Hour={true}
+                minimumDate={new Date()}
+                onChange={onDateSelected}
+              />
+            )}
+            {timePicker && (
+              <DateTimePicker
+                value={time}
+                mode={'time'}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                is24Hour={false}
+                minimumDate={new Date()}
+                onChange={onTimeSelected}
+              />
+            )}
             <View style={styles.todoTypeContainer}>
               <Text style={styles.todoType}>Personal</Text>
               <Switch
@@ -146,7 +191,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
     borderWidth: 2,
     marginHorizontal: 20,
-    marginVertical: 20,
+    marginVertical: 30,
     padding: 10,
   },
   buttonContainer: {
@@ -170,6 +215,13 @@ const styles = StyleSheet.create({
   todoSwitch: {
     margin: 10,
   },
+  dateTimeShow: {
+    color: 'black',
+    alignSelf: 'center',
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  pickerContainer: {flexDirection: 'row', justifyContent: 'space-between'},
 });
 
 export default AddTodoForm;

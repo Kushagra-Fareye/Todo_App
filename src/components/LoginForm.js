@@ -15,6 +15,7 @@ import {
   PageTypes,
 } from '../constants/FormConstants';
 import {login} from '../api/Login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
 let passwordReg = /^(?=.[0-9])(?=.[!@#$%^&])[a-zA-Z0-9!@#$%^&]{6,16}$/;
@@ -29,6 +30,18 @@ const LoginForm = props => {
   const [showPassword, toggleShowPassword] = useState(false);
   const [validEmailColor, updateValidEmailColor] = useState('black');
   const [validPasswordColor, updateValidPasswordColor] = useState('black');
+
+  async function fetchCrentials() {
+    const data = await AsyncStorage.getItem('login-credentials');
+    if (data) {
+      const credentials = JSON.parse(data);
+      const areCredentialsCorrect = await login(credentials);
+      setIsLoggedIn(areCredentialsCorrect);
+    }
+  }
+  useEffect(() => {
+    fetchCrentials();
+  }, []);
 
   useEffect(() => {
     if (!reg.test(email)) {
@@ -52,14 +65,14 @@ const LoginForm = props => {
       Alert.alert(AlertMessages.empty);
       return;
     }
-    // if (!reg.test(email)) {
-    //   Alert.alert('Invalid Email', AlertMessages.invalidEmail);
-    //   return;
-    // }
-    // if (!passwordReg.test(email)) {
-    //   Alert.alert('Invalid Password', AlertMessages.invalidPassword);
-    //   return;
-    // }
+    if (!reg.test(email)) {
+      Alert.alert('Invalid Email', AlertMessages.invalidEmail);
+      return;
+    }
+    if (!passwordReg.test(email)) {
+      Alert.alert('Invalid Password', AlertMessages.invalidPassword);
+      return;
+    }
 
     if (pageType === PageTypes.sign_up) {
       setIsLoggedIn(true);

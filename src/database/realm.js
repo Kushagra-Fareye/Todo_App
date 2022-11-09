@@ -1,15 +1,16 @@
 import Realm from 'realm';
-import {TodoSchema, TodoSchema1} from './schema';
+import {TodoStatus} from '../constants/TodoConstants';
+import {TodoSchema} from './schema';
 
 const idGenerator = realm => {
   let id = realm.objects('Todo').max('id');
-  console.log(id);
+
   if (!id) id = 0;
   return id + 1;
 };
 export async function writeData(data) {
   const realm = await Realm.open({
-    path: 'RealmDB',
+    path: 'TodoApplication',
     schema: [TodoSchema],
   });
   try {
@@ -24,7 +25,7 @@ export async function writeData(data) {
 
 export async function getAllData() {
   const realm = await Realm.open({
-    path: 'RealmDB',
+    path: 'TodoApplication',
     schema: [TodoSchema],
   });
   const data = realm.objects('Todo');
@@ -33,7 +34,7 @@ export async function getAllData() {
 
 export async function getTodosByStatus(filter) {
   const realm = await Realm.open({
-    path: 'RealmDB',
+    path: 'TodoApplication',
     schema: [TodoSchema],
   });
   const data = realm.objects('Todo').filtered(`status=='${filter}'`);
@@ -42,16 +43,29 @@ export async function getTodosByStatus(filter) {
 
 export async function getRealmPath() {
   const realm = await Realm.open({
-    path: 'RealmDB',
+    path: 'TodoApplication',
     schema: [TodoSchema],
   });
   return realm.path;
 }
 
-export async function updateTodo(id) {
+export async function updateTodo(id, newStatus) {
   const realm = await Realm.open({
-    path: 'RealmDB',
+    path: 'TodoApplication',
     schema: [TodoSchema],
   });
-  const todo = realm.objects('Todo').filtered(`id==${id}`);
+  realm.write(() => {
+    const oldTodo = realm.objects('Todo').filter(todo => todo.id === id)[0];
+    oldTodo.status = newStatus;
+  });
+}
+
+export async function deleteTodo(todo) {
+  const realm = await Realm.open({
+    path: 'TodoApplication',
+    schema: [TodoSchema],
+  });
+  realm.write(() => {
+    realm.delete(todo);
+  });
 }

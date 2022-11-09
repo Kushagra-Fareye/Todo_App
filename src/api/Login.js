@@ -1,14 +1,20 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export async function login(data) {
   let flag = false;
   await fetch(
-    `http://10.0.2.2:8080/login?username=${data.email}&password=${data.password}`,
+    `http://10.0.2.2:8080/login?email=${data.email}&password=${data.password}`,
     {
       method: 'POST',
     },
   )
-    .then(res => {
+    .then(async res => {
       if (res.status === 200) {
         flag = true;
+        await AsyncStorage.setItem(
+          'login-credentials',
+          JSON.stringify({email: data.email, password: data.password}),
+        );
       }
     })
     .catch(e => console.log(e));

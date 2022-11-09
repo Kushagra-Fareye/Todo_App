@@ -11,12 +11,11 @@ export default function Header() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'grey',
   },
   title: {
     textAlign: 'center',
-    fontSize: 40,
-    fontStyle: 'bold',
+    fontSize: 35,
+    fontWeight: 'bold',
     alignContent: 'center',
     alignItems: 'center',
     color: 'black',

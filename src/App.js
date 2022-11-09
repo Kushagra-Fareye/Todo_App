@@ -7,7 +7,7 @@
  */
 
 import {NavigationContainer} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {AddTodoForm, LoginForm, Header, List} from './components';
@@ -16,18 +16,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const App = () => {
   const Stack = createStackNavigator();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  AsyncStorage.setItem(
-    'completedTodos',
-    JSON.stringify([
-      {title: 'something', dueDate: 'dueDate', type: 'professional'},
-      {title: 'something', dueDate: 'dueDate', type: 'professional'},
-      {title: 'something', dueDate: 'dueDate', type: 'professional'},
-      {title: 'something', dueDate: 'dueDate', type: 'personal'},
-      {title: 'something', dueDate: 'dueDate', type: 'personal'},
-    ]),
-  );
-  AsyncStorage.setItem('todos', JSON.stringify([]));
-  AsyncStorage.setItem('inProgressodos', JSON.stringify([]));
 
   return (
     <>

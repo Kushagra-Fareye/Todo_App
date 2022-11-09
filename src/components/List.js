@@ -1,12 +1,13 @@
-import {View, Text, ScrollView, StyleSheet} from 'react-native';
+import {View, Text, ScrollView, StyleSheet, Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import TodoCard from './TodoCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import Header from './Header';
-import {getAllData, getTodosByStatus} from '../database/realm';
+import {getTodosByStatus} from '../database/realm';
+import {TodoStatus} from '../constants/TodoConstants';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
-let pageType = 'todos';
+let pageType = TodoStatus.TODOS;
 export default function List({route, navigation}) {
   const isFocused = useIsFocused();
   if (route?.params) {
@@ -14,8 +15,8 @@ export default function List({route, navigation}) {
   }
   const [data, setData] = useState([]);
   const fetchData = async () => {
-    const storedData = await getTodosByStatus(pageType);
-    if (storedData) setData(storedData);
+    const res = await getTodosByStatus(pageType);
+    if (res) setData(res);
   };
   useEffect(() => {
     fetchData();
@@ -36,28 +37,30 @@ export default function List({route, navigation}) {
               <Text
                 style={styles.button}
                 onPress={() =>
-                  navigation.push('Completed Todos', {
-                    pageType: 'completedTodos',
+                  navigation.push('In Progress Todos', {
+                    pageType: TodoStatus.IN_PROGRESS,
                   })
                 }>
-                Completed
+                InProgress
               </Text>
               <Text
                 style={styles.button}
                 onPress={() =>
-                  navigation.push('In Progress Todos', {
-                    pageType: 'inProgressTodos',
+                  navigation.push('Completed Todos', {
+                    pageType: TodoStatus.COMPLETED,
                   })
                 }>
-                InProgress
+                Completed
               </Text>
             </View>
           </View>
 
           {data && data.length ? (
             <ScrollView style={styles.cardContainer}>
-              {data.map(todo => {
-                return <TodoCard todo={todo} key={todo.id} />;
+              {data.map((todo, i) => {
+                return (
+                  <TodoCard todo={todo} key={i} data={data} setData={setData} />
+                );
               })}
             </ScrollView>
           ) : (
@@ -69,6 +72,13 @@ export default function List({route, navigation}) {
             style={styles.modalbutton}>
             Add Todo
           </Text>
+
+          {/* <TouchableOpacity>
+            <Image
+              style={styles.modalbutton}
+              source={require('../assets/add_icon.png')}
+            />
+          </TouchableOpacity> */}
         </View>
       </View>
     </>
@@ -78,8 +88,7 @@ export default function List({route, navigation}) {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-
-    backgroundColor: 'grey',
+    backgroundColor: 'blue',
   },
   header: {
     flex: 1,
@@ -95,7 +104,7 @@ const styles = StyleSheet.create({
   },
   navigationButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginTop: -40,
     height: 100,
     alignContent: 'center',
@@ -110,7 +119,7 @@ const styles = StyleSheet.create({
     padding: 15,
     alignContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'yellow',
+    backgroundColor: 'white',
     borderRadius: 5,
     elevation: 10,
   },
@@ -118,9 +127,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 50,
     right: 50,
+    elevation: 4,
+    resizeMode: 'contain',
     padding: 20,
-    borderColor: 'black',
-    borderWidth: 2,
+    color: 'black',
     borderRadius: 50,
     backgroundColor: 'skyblue',
   },
